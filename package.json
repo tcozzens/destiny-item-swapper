@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/tcozzens/destiny-item-swapper#readme",
   "dependencies": {
-    "request": "^2.83.0"
-  }
+    "alexa-sdk": "^1.0.14",
+    "request": "^2.83.0",
+    "rxjs": "^5.4.3"
+  },
+  "devDependencies": {}
 }
