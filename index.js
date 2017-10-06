@@ -5,7 +5,7 @@ exports.handler = function (event, context) {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
 
         if (event.session.new) {
-            onSessionStarted({requestId: event.request.requestId}, event.session);
+            onSessionStarted({ requestId: event.request.requestId }, event.session);
         }
 
         if (event.request.type === "LaunchRequest") {
@@ -43,10 +43,12 @@ function onIntent(intentRequest, session, callback) {
     var intentName = intentRequest.intent.name;
 
     // dispatch custom intents to handlers here
-    if (intentName == "TuckerTest") {
-        handleGetInfoIntent(intent, session, callback)
-    } else {
-         throw "Invalid intent"
+    switch (intentName) {
+        case "TuckerTest":
+            handleGetInfoIntent(intent, session, callback)
+            break
+        default:
+            throw "Invalid intent"
     }
 }
 
@@ -66,8 +68,8 @@ function getWelcomeResponse(callback) {
     var shouldEndSession = false
 
     var sessionAttributes = {
-        "speechOutput" : speechOutput,
-        "repromptText" : reprompt
+        "speechOutput": speechOutput,
+        "repromptText": reprompt
     }
 
     callback(sessionAttributes, buildSpeechletResponse(header, speechOutput, reprompt, shouldEndSession))
@@ -78,7 +80,7 @@ function handleGetInfoIntent(intent, session, callback) {
 
     var speechOutput = "We have an error"
 
-    getJSON(function(data) {
+    getJSON(function (data) {
         if (data != "ERROR") {
             var speechOutput = data
         }
@@ -97,7 +99,7 @@ function destinyGetCharacter() {
 }
 
 function getJSON(callback) {
-    request.get(url2(), function(error, response, body) {
+    request.get(destinyGetCharacter(), function (error, response, body) {
         var result = JSON.parse(body)
         if (result) {
             callback(result.Response[0].displayName)
