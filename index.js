@@ -44,12 +44,7 @@ function onIntent(intentRequest, session, callback) {
 
     // dispatch custom intents to handlers here
 
-
-    if (intentName == "TuckerTest") {
-        handleGetInfoIntent(intent, session, callback)
-    } else if (intentName == "TestLogin") {
-        // handleTestLogin(intent, session, callback)
-    } else if (intentName == "GetHoursPlayed") {
+    if (intentName == "GetHoursPlayed") {
         handleGetHoursPlayed(intent, session, callback)
     }
     else {
@@ -64,78 +59,28 @@ function onSessionEnded(sessionEndedRequest, session) {
 
 // ------- Skill specific logic -------
 
-function getWelcomeResponse(callback) {
-    var speechOutput = "Welcome! Do you want to hear about some facts?"
-
-    var reprompt = "Do you want to hear about some facts?"
-
-    var header = "Get Info"
-
-    var shouldEndSession = false
-
-    var sessionAttributes = {
-        "speechOutput": speechOutput,
-        "repromptText": reprompt
-    }
-
-    callback(sessionAttributes, buildSpeechletResponse(header, speechOutput, reprompt, shouldEndSession))
-
-}
-
-function handleGetInfoIntent(intent, session, callback) {
-
-    var speechOutput = "We have an error"
-
-    getJSON(function (data) {
-        if (data != "ERROR") {
-            var speechOutput = data
-        }
-        callback(session.attributes, buildSpeechletResponseWithoutCard(speechOutput, "", true))
-    })
-
-}
 
 function handleGetHoursPlayed(intent, session, callback) {
 
-    var speechOutput = "We have an error"
+    var test = someTest(session, callback)
 
-    var currentUserMembershipId;
-    var characters;
+    callback(session.attributes, buildSpeechletResponseWithoutCard(test, "", true))
+}
 
+function someTest(session, callback) {
     getCurrentUserJSON((session), function (data) {
-        var test;
+        var speechOutput;
+
         if (data != "ERROR") {
             if (data && data.destinyMemberships) {
-                test = data.destinyMemberships[0].membershipId
+                speechOutput = data.destinyMemberships[0].membershipId
             } else {
-                test = "almost there"
+                speechOutput = "Sorry, couldn't find your membership."
             }
         }
-    callback(session.attributes, buildSpeechletResponseWithoutCard(test, "", true))
-    
+
+        callback(speechOutput)
     });
-}
-
-function handleTestLogin(intent, session, callback) {
-
-    var speechOutput = "We have an error"
-
-    getCurrentUserJSON(function (data) {
-        if (data != "ERROR") {
-            var speechOutput = data
-        }
-        callback(session.attributes, buildSpeechletResponseWithoutCard(speechOutput, "", true))
-    })
-
-}
-
-function destinyGetCharacter() {
-    return {
-        url: "https://bungie.net/Platform/User/SearchUsers/?q=alltuckerdout",
-        headers: {
-            'X-API-Key': '461360109a974a24a9f07e54653a5001'
-        }
-    }
 }
 
 function getUserData(session) {
@@ -148,27 +93,14 @@ function getUserData(session) {
     }
 }
 
-function getJSON(callback) {
-    request.get(destinyGetCharacter(), function (error, response, body) {
-        var result = JSON.parse(body)
-        if (result) {
-            callback(result.Response[0].displayName)
-        } else {
-            callback("ERROR")
-        }
-    })
-}
-
 function getCurrentUserJSON(session, callback) {
-    console.log("got to getCurrentUserJson")
     request.get(getUserData(session), function (error, response, body) {
-        console.log("getUserData")
         var result
         try {
             result = JSON.parse(body)
             if (result && result.Response) {
                 callback(result.Response)
-            } 
+            }
         } catch (e) {
             callback(body)
         }
@@ -176,10 +108,7 @@ function getCurrentUserJSON(session, callback) {
 }
 
 function getCharacters(currentUserMembershipId, callback) {
-
     request.get(getCharacterData(currentUserMembershipId), function (error, response, body) {
-        console.log("getCharacterData")
-
         var result = JSON.parse(body)
 
         if (result && result.Response) {
