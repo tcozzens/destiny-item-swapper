@@ -111,27 +111,9 @@ function handleGetHoursPlayed(intent, session, callback) {
                 test = "almost there"
             }
         }
-        // if (currentUserMembershipId.destinyMemberships) {
-        //     callback(session.attributes, buildSpeechletResponseWithoutCard(currentUserMembershipId.destinyMemberships[0].membershipId, "", true))
-        // }
     callback(session.attributes, buildSpeechletResponseWithoutCard(test, "", true))
     
     });
-
-    // getCharacters(currentUserMembershipId, function (data) {
-    //     if (data != "ERROR") {
-    //        characters = data
-    //     }
-    // });
-
-
-
-    // for(character in characters) {
-    //     if (character.classType === 2){
-    //     callback(session.attributes, buildSpeechletResponseWithoutCard(character.minutesPlayedTotal, "", true))            
-    //     }
-    // }
-    
 }
 
 function handleTestLogin(intent, session, callback) {
