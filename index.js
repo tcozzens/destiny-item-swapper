@@ -61,26 +61,19 @@ function onSessionEnded(sessionEndedRequest, session) {
 
 
 function handleGetHoursPlayed(intent, session, callback) {
+    var speechOutput = "Start";
 
-    var test = someTest(session, callback)
-
-    callback(session.attributes, buildSpeechletResponseWithoutCard(test, "", true))
-}
-
-function someTest(session, callback) {
-    getCurrentUserJSON((session), function (data) {
-        var speechOutput;
-
-        if (data != "ERROR") {
-            if (data && data.destinyMemberships) {
-                speechOutput = data.destinyMemberships[0].membershipId
-            } else {
-                speechOutput = "Sorry, couldn't find your membership."
+    getCurrentUserJSON(session)
+        .then(user => {
+            if (user != "ERROR") {
+                if (user && user.destinyMemberships) {
+                    speechOutput = user.destinyMemberships[0].membershipId
+                } else {
+                    speechOutput = "Sorry, couldn't find your membership."
+                }
             }
-        }
-
-        callback(speechOutput)
-    });
+            callback(session.attributes, buildSpeechletResponseWithoutCard(speechOutput, "", true))
+        })
 }
 
 function getUserData(session) {
@@ -93,19 +86,19 @@ function getUserData(session) {
     }
 }
 
-function getCurrentUserJSON(session, callback) {
+const getCurrentUserJSON = session => new Promise((resolve, reject) => {
     request.get(getUserData(session), function (error, response, body) {
         var result
         try {
             result = JSON.parse(body)
             if (result && result.Response) {
-                callback(result.Response)
+                return resolve(result.Response)
             }
         } catch (e) {
-            callback(body)
+            return reject(error)
         }
     })
-}
+})
 
 function getCharacters(currentUserMembershipId, callback) {
     request.get(getCharacterData(currentUserMembershipId), function (error, response, body) {
