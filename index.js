@@ -64,13 +64,34 @@ function handleGetHoursPlayed(intent, session, callback) {
     var speechOutput = "Start";
 
     getCurrentUserJSON(session)
-        .then(user => {
-            if (user != "ERROR") {
-                if (user && user.destinyMemberships) {
-                    speechOutput = user.destinyMemberships[0].membershipId
-                } else {
+        .then(getCharacters) //bc of the then, the user is automatically passed.
+        .then(response => {
+            if (response !== "ERROR") {
+                if (response && response.characters) {
+                    var characters = response.characters.data
+                    speechOutput = "";
+
+                    for (var character in characters) {
+                        const characterValues = characters[character];
+                        let hoursPlayed = Math.ceil(characterValues.minutesPlayedTotal / 60);
+                        switch (characterValues.classType) {
+                            case 0:
+                                speechOutput = speechOutput + "Your titan has " + hoursPlayed + " hours played. ";
+                                break;
+                            case 1:
+                                speechOutput = speechOutput + "Your hunter has " + hoursPlayed + " hours played. ";
+                                break;
+                            case 2:
+                                speechOutput = speechOutput + "Your warlock has " + hoursPlayed + " hours played. ";
+                                break;
+                        }
+                    }
+                }
+                else {
                     speechOutput = "Sorry, couldn't find your membership."
                 }
+            } else {
+                speechOutput = "I guess an error?"
             }
             callback(session.attributes, buildSpeechletResponseWithoutCard(speechOutput, "", true))
         })
@@ -91,31 +112,46 @@ const getCurrentUserJSON = session => new Promise((resolve, reject) => {
         var result
         try {
             result = JSON.parse(body)
+
             if (result && result.Response) {
-                return resolve(result.Response)
+                resolve(result.Response)
             }
         } catch (e) {
-            return reject(error)
+            reject(error)
         }
     })
 })
 
-function getCharacters(currentUserMembershipId, callback) {
-    request.get(getCharacterData(currentUserMembershipId), function (error, response, body) {
-        var result = JSON.parse(body)
+const getCharacters = response => new Promise((resolve, reject) => {
+    request.get(getCharacterData(response.destinyMemberships[0].membershipId), function (error, response, body) {
+        var result
+        try {
+            var result = JSON.parse(body)
 
-        if (result && result.Response) {
-            callback(result.Response.characters.data)
-        } else {
-            callback(body)
+            if (result && result.Response) {
+                resolve(result.Response)
+            }
+        } catch (e) {
+            reject(error)
         }
     })
-}
+})
+
+// function getCharacters(currentUserMembershipId, callback) {
+//     request.get(getCharacterData(currentUserMembershipId), function (error, response, body) {
+//         var result = JSON.parse(body)
+
+//         if (result && result.Response) {
+//             callback(result.Response.characters.data)
+//         } else {
+//             callback(body)
+//         }
+//     })
+// }
 
 function getCharacterData(currentUserMembershipId) {
-    var url = "https://www.bungie.net/Platform/Destiny2/1/Profile/" + currentUserMembershipId + "?components=200";
     return {
-        url: url,
+        url: "https://www.bungie.net/Platform/Destiny2/1/Profile/4611686018430173826?components=200",
         headers: {
             'X-API-Key': '461360109a974a24a9f07e54653a5001',
         }
