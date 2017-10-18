@@ -4,7 +4,8 @@
   "description": "An alexa skill to quickly swap items in Destiny 2.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint './index.js' --fix"
   },
   "repository": {
     "type": "git",
@@ -26,5 +27,7 @@
     "request": "^2.83.0",
     "rxjs": "^5.4.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^4.9.0"
+  }
 }
